@@ -36,15 +36,71 @@ document.addEventListener('DOMContentLoaded', () => {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${sender === 'user' ? 'user-message' : 'bot-message'}`;
 
+        let formattedText = text;
+        if (sender === 'bot') {
+            formattedText = text.replace(/```(\w+)?\n?([\s\S]*?)```/g, (match, language, code) => {
+                language = language || 'plaintext';
+                return `<pre><code class="language-${language}">${escapeHtml(code.trim())}</code></pre>`;
+            });
+        }
+
         messageDiv.innerHTML = `
             <div class="message-header">
                 <span class="sender-name">${sender === 'user' ? 'You' : 'AI'}</span>
             </div>
-            <div class="message-content">${text}</div>
+            <div class="message-content">${formattedText}</div>
         `;
 
         chatMessages.appendChild(messageDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        // Add copy buttons to code blocks
+        messageDiv.querySelectorAll('pre').forEach(addCopyButton);
+
+        // Highlight code blocks
+        Prism.highlightAllUnder(messageDiv);
+    }
+
+    function escapeHtml(unsafe) {
+        return unsafe
+             .replace(/&/g, "&amp;")
+             .replace(/</g, "&lt;")
+             .replace(/>/g, "&gt;")
+             .replace(/"/g, "&quot;")
+             .replace(/'/g, "&#039;");
+    }
+
+    function addCopyButton(block) {
+        const button = document.createElement('button');
+        button.textContent = 'Copy';
+        button.className = 'copy-button';
+        button.addEventListener('click', () => {
+            const code = block.querySelector('code');
+            navigator.clipboard.writeText(code.textContent).then(() => {
+                button.textContent = 'Copied!';
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                }, 2000);
+            }, (err) => {
+                console.error('Could not copy text: ', err);
+            });
+        });
+        block.appendChild(button);
+    }
+
+    function showLoading() {
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'loading-container';
+        loadingDiv.innerHTML = '<div class="loading"></div>';
+        chatMessages.appendChild(loadingDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function hideLoading() {
+        const loadingDiv = chatMessages.querySelector('.loading-container');
+        if (loadingDiv) {
+            loadingDiv.remove();
+        }
     }
 
     async function sendMessage() {
@@ -61,6 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (message) {
             addMessage(message, 'user');
             userInput.value = '';
+            showLoading();
 
             try {
                 console.log('Attempting to send message to server');
@@ -80,10 +137,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const data = await response.json();
                 console.log('Parsed response data:', data);
+                hideLoading();
                 addMessage(data.response, 'bot');
                 chatId = data.chat_id;
             } catch (error) {
                 console.error('Error in sendMessage:', error);
+                hideLoading();
                 addMessage(`Sorry, there was an error processing your request: ${error.message}`, 'bot');
             } finally {
                 sendInProgress = false;

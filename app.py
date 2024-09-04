@@ -133,7 +133,7 @@ def chat():
             db.session.commit()
             chat_id = new_chat.id
 
-        chat = Chat.query.get(chat_id)
+        chat = db.session.get(Chat, chat_id)
         conversation_history = [{"role": "user" if msg.is_user else "assistant", "content": msg.content} for msg in
                                 chat.messages]
 
