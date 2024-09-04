@@ -43,10 +43,12 @@ limiter = Limiter(
     storage_uri="memory://",
 )
 
+
 class Chat(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     messages = db.relationship('Message', backref='chat', lazy=True)
+
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -55,8 +57,10 @@ class Message(db.Model):
     timestamp = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     chat_id = db.Column(db.Integer, db.ForeignKey('chat.id'), nullable=False)
 
+
 with app.app_context():
     db.create_all()
+
 
 def get_ai_response(user_input, conversation_history):
     try:
@@ -106,13 +110,16 @@ def get_ai_response(user_input, conversation_history):
         logger.error(f"Error creating completion: {e}")
         return "I couldn't process that request due to an error."
 
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
+
 @app.route('/static/<path:path>')
 def send_static(path):
     return send_from_directory('static', path)
+
 
 @app.route('/api/chat', methods=['POST'])
 @limiter.limit("10 per minute")
@@ -153,6 +160,7 @@ def chat():
         logger.error(f"Unexpected error in chat route: {e}")
         return jsonify({'error': 'An unexpected error occurred'}), 500
 
+
 @app.route('/api/chat/<int:chat_id>')
 def get_chat(chat_id):
     try:
@@ -163,6 +171,7 @@ def get_chat(chat_id):
         logger.error(f"Error retrieving chat: {e}")
         return jsonify({'error': 'An error occurred while retrieving the chat'}), 500
 
+
 @app.route('/api/chats')
 def get_all_chats():
     try:
@@ -172,9 +181,11 @@ def get_all_chats():
         logger.error(f"Error retrieving all chats: {e}")
         return jsonify({'error': 'An error occurred while retrieving chats'}), 500
 
+
 @app.route('/health')
 def health_check():
     return jsonify({'status': 'ok'}), 200
+
 
 def cleanup_old_chats():
     try:
@@ -186,6 +197,7 @@ def cleanup_old_chats():
         logger.info(f"Cleaned up {len(old_chats)} old chats")
     except Exception as e:
         logger.error(f"Error cleaning up old chats: {e}")
+
 
 if __name__ == '__main__':
     scheduler = BackgroundScheduler()

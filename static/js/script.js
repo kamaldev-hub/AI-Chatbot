@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const userInput = document.getElementById('userInput') || console.error('userInput element not found');
     const sendButton = document.getElementById('sendButton') || console.error('sendButton element not found');
     const themeButtons = document.querySelectorAll('.theme-button');
+    const app = document.getElementById('app') || document.body;
 
     if (themeButtons.length === 0) console.error('No theme buttons found');
 
@@ -13,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setTheme(theme) {
         console.log(`Setting theme to: ${theme}`);
+        app.className = theme;
         document.body.className = theme;
         currentTheme = theme;
         themeButtons.forEach(button => {
@@ -30,6 +32,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Set initial theme
     setTheme(currentTheme);
+
+    function scrollToBottom() {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
 
     function addMessage(text, sender) {
         console.log(`Adding message from ${sender}: ${text}`);
@@ -52,13 +58,15 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
 
         chatMessages.appendChild(messageDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+        scrollToBottom();
 
         // Add copy buttons to code blocks
         messageDiv.querySelectorAll('pre').forEach(addCopyButton);
 
         // Highlight code blocks
-        Prism.highlightAllUnder(messageDiv);
+        if (typeof Prism !== 'undefined') {
+            Prism.highlightAllUnder(messageDiv);
+        }
     }
 
     function escapeHtml(unsafe) {
@@ -93,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingDiv.className = 'loading-container';
         loadingDiv.innerHTML = '<div class="loading"></div>';
         chatMessages.appendChild(loadingDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+        scrollToBottom();
     }
 
     function hideLoading() {

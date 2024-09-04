@@ -1,15 +1,15 @@
 /* Base styles */
-body {
+body, #app {
     font-family: 'Arial', sans-serif;
     transition: all 0.3s ease;
     margin: 0;
     padding: 0;
+    min-height: 100vh;
 }
 
 #app {
     display: flex;
     flex-direction: column;
-    height: 100vh;
 }
 
 header {
@@ -30,75 +30,79 @@ footer {
 }
 
 /* Light theme */
-.light {
+body.light, #app.light {
     background-color: #f5f5f5;
     color: #333333;
 }
 
-.light .message {
+body.light .message, #app.light .message {
     background-color: #ffffff;
     border: 1px solid #e0e0e0;
 }
 
-.light .user-message {
+body.light .user-message, #app.light .user-message {
     background-color: #e0e0e0;
     border: none;
 }
 
-.light input, .light button {
+body.light input, body.light button, #app.light input, #app.light button {
     background-color: #ffffff;
     border: 1px solid #e0e0e0;
     color: #333333;
 }
 
 /* Dark theme */
-.dark {
-    background-color: #1a1a1a;
+body.dark, #app.dark {
+    background-color: #3C3C3C;
     color: #ffffff;
 }
 
-.dark .message {
+body.dark .message, #app.dark .message {
     background-color: #2a2a2a;
     border: 1px solid #3a3a3a;
+    color: #ffffff;
 }
 
-.dark .user-message {
+body.dark .user-message, #app.dark .user-message {
     background-color: #3a3a3a;
     border: none;
+    color: #ffffff;
 }
 
-.dark input, .dark button {
+body.dark input, body.dark button, #app.dark input, #app.dark button {
     background-color: #2a2a2a;
     border: 1px solid #3a3a3a;
     color: #ffffff;
 }
 
 /* Cyberpunk theme */
-.cyberpunk {
-    background-color: #0c0c1d;
+body.cyberpunk, #app.cyberpunk {
+    background-color: #1A1A2E;
     color: #00ffff;
 }
 
-.cyberpunk .message {
+body.cyberpunk .message, #app.cyberpunk .message {
     background-color: #1a1a2e;
     border: 1px solid #00ffff;
     box-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
+    color: #00ffff;
 }
 
-.cyberpunk .user-message {
+body.cyberpunk .user-message, #app.cyberpunk .user-message {
     background-color: #2a2a3e;
     border: 1px solid #ff00ff;
     box-shadow: 0 0 5px rgba(255, 0, 255, 0.3);
+    color: #ff00ff;
 }
 
-.cyberpunk input {
+body.cyberpunk input, #app.cyberpunk input {
     background-color: #1a1a2e;
     border: 1px solid #00ffff;
     color: #00ffff;
     box-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
 }
 
-.cyberpunk button {
+body.cyberpunk button, #app.cyberpunk button {
     background-color: #1a1a2e;
     border: 1px solid #ff00ff;
     color: #ff00ff;
@@ -171,15 +175,15 @@ button:hover {
 }
 
 /* Specific button colors */
-.light .theme-button.active {
+body.light .theme-button.active, #app.light .theme-button.active {
     color: #4a90e2;
 }
 
-.dark .theme-button.active {
+body.dark .theme-button.active, #app.dark .theme-button.active {
     color: #ffffff;
 }
 
-.cyberpunk .theme-button.active {
+body.cyberpunk .theme-button.active, #app.cyberpunk .theme-button.active {
     color: #ff00ff;
     text-shadow: 0 0 5px rgba(255, 0, 255, 0.7);
 }
@@ -191,18 +195,19 @@ button:hover {
     border: none;
 }
 
-.dark #sendButton {
+body.dark #sendButton, #app.dark #sendButton {
     background-color: #3a3a3a;
+    color: #ffffff;
 }
 
-.cyberpunk #sendButton {
+body.cyberpunk #sendButton, #app.cyberpunk #sendButton {
     background-color: #ff00ff;
     color: #0c0c1d;
     border: none;
     box-shadow: 0 0 5px rgba(255, 0, 255, 0.7);
 }
 
-.cyberpunk #sendButton:hover {
+body.cyberpunk #sendButton:hover, #app.cyberpunk #sendButton:hover {
     background-color: #ff40ff;
     box-shadow: 0 0 10px rgba(255, 0, 255, 0.9);
 }
@@ -223,18 +228,18 @@ code {
 }
 
 /* Theme-specific code block styles */
-.light pre {
+body.light pre, #app.light pre {
     background-color: #f5f5f5;
     border: 1px solid #e0e0e0;
 }
 
-.dark pre {
+body.dark pre, #app.dark pre {
     background-color: #2d2d2d;
     border: 1px solid #3a3a3a;
     color: #ffffff;
 }
 
-.cyberpunk pre {
+body.cyberpunk pre, #app.cyberpunk pre {
     background-color: #1a1a2e;
     border: 1px solid #00ffff;
     box-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
@@ -259,12 +264,12 @@ code {
     background-color: #3a80d2;
 }
 
-.dark .copy-button {
+body.dark .copy-button, #app.dark .copy-button {
     background-color: #3a3a3a;
     color: #ffffff;
 }
 
-.cyberpunk .copy-button {
+body.cyberpunk .copy-button, #app.cyberpunk .copy-button {
     background-color: #ff00ff;
     color: #0c0c1d;
 }
@@ -293,4 +298,19 @@ code {
     justify-content: center;
     align-items: center;
     height: 100px;
+}
+
+/* Ensure text is visible in all modes */
+body.dark, body.cyberpunk, #app.dark, #app.cyberpunk {
+    color: #ffffff;
+}
+
+body.dark input, body.dark button, body.cyberpunk input, body.cyberpunk button,
+#app.dark input, #app.dark button, #app.cyberpunk input, #app.cyberpunk button {
+    color: #ffffff;
+}
+
+body.dark ::placeholder, body.cyberpunk ::placeholder,
+#app.dark ::placeholder, #app.cyberpunk ::placeholder {
+    color: #a0a0a0;
 }
