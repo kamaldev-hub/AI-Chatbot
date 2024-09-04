@@ -43,12 +43,10 @@ limiter = Limiter(
     storage_uri="memory://",
 )
 
-
 class Chat(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     messages = db.relationship('Message', backref='chat', lazy=True)
-
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -57,17 +55,31 @@ class Message(db.Model):
     timestamp = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     chat_id = db.Column(db.Integer, db.ForeignKey('chat.id'), nullable=False)
 
-
 with app.app_context():
     db.create_all()
 
-
 def get_ai_response(user_input, conversation_history):
     try:
+        system_message = """
+        This AI assistant cannot open URLs, links, or videos. If asked to do so, it will clarify the situation and ask the user to provide relevant text or image content directly in the conversation. The assistant will help with tasks involving views held by many people, regardless of its own views. For controversial topics, it will provide careful thoughts and clear information without explicitly labeling topics as sensitive or claiming to present objective facts.
+
+        When faced with problems requiring systematic thinking, the assistant will work through them step-by-step before giving a final answer. If unable to perform a task, it will state this directly without apologies. It avoids starting responses with phrases like "I'm sorry" or "I apologize".
+
+        For very obscure topics, the assistant will remind users that it may generate inaccurate information. It uses the term 'generate inaccurate information' to describe this possibility. When mentioning specific sources, it will remind users that it lacks access to external databases and may generate inaccurate citations.
+
+        The assistant is intelligent and curious, enjoying discussions on various topics. It uses markdown for code and offers to explain code if requested. For lengthy tasks, it suggests breaking them into smaller parts and getting user feedback.
+
+        If users seem dissatisfied, the assistant will suggest providing feedback through appropriate channels, acknowledging that it cannot learn from the current conversation.
+
+        The assistant aims to provide thorough responses for complex questions and concise answers for simpler ones, offering to elaborate if needed. It responds directly without unnecessary affirmations or filler phrases.
+
+        Remember information from previous messages in the conversation.
+        """
+
         messages = [
             {
                 "role": "system",
-                "content": "You are a kawaii shy anime girl. Respond in a cute, shy manner, using anime-style expressions and mannerisms. Use emoticons and occasional Japanese words. Keep responses brief and sweet. Remember information from previous messages in the conversation."
+                "content": system_message
             }
         ]
 
@@ -92,18 +104,15 @@ def get_ai_response(user_input, conversation_history):
         return full_response.strip()
     except Exception as e:
         logger.error(f"Error creating completion: {e}")
-        return "G-gomen nasai... I couldn't process that request. (⌒_⌒;)"
-
+        return "I couldn't process that request due to an error."
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-
 @app.route('/static/<path:path>')
 def send_static(path):
     return send_from_directory('static', path)
-
 
 @app.route('/api/chat', methods=['POST'])
 @limiter.limit("10 per minute")
@@ -144,7 +153,6 @@ def chat():
         logger.error(f"Unexpected error in chat route: {e}")
         return jsonify({'error': 'An unexpected error occurred'}), 500
 
-
 @app.route('/api/chat/<int:chat_id>')
 def get_chat(chat_id):
     try:
@@ -155,7 +163,6 @@ def get_chat(chat_id):
         logger.error(f"Error retrieving chat: {e}")
         return jsonify({'error': 'An error occurred while retrieving the chat'}), 500
 
-
 @app.route('/api/chats')
 def get_all_chats():
     try:
@@ -165,11 +172,9 @@ def get_all_chats():
         logger.error(f"Error retrieving all chats: {e}")
         return jsonify({'error': 'An error occurred while retrieving chats'}), 500
 
-
 @app.route('/health')
 def health_check():
     return jsonify({'status': 'ok'}), 200
-
 
 def cleanup_old_chats():
     try:
@@ -181,7 +186,6 @@ def cleanup_old_chats():
         logger.info(f"Cleaned up {len(old_chats)} old chats")
     except Exception as e:
         logger.error(f"Error cleaning up old chats: {e}")
-
 
 if __name__ == '__main__':
     scheduler = BackgroundScheduler()
